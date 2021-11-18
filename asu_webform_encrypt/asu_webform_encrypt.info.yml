@@ -1,0 +1,6 @@
+name: Custom Webform Encryption
+type: module
+description: 'Encrypts webform fields values in URL.'
+package: Custom
+dependencies: webform
+core_version_requirement: ^8.8 || ^9
