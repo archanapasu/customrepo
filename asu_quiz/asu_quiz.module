@@ -1,0 +1,95 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Utility\WebformFormHelper;
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\webform\WebformSubmissionInterface;
+use Drupal\webform\Entity\Webform;
+use Drupal\webform\WebformSubmissionForm;
+use Drupal\webform\Entity\WebformSubmission;
+
+function asu_quiz_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+     /** code to attach libraries to quiz form and quiz confirmation page */
+    if(isset($form_id)) {
+        if (($form_id != "node_page_layout_builder_form") && ($form_id != "views_exposed_form")) {
+            $libraries_config = \Drupal::config('pageLibraries.libraries_admin_settings');
+            $libraries_count_value = $libraries_config->get('libraries_field_count');
+            for ($i = 1; $i <= $libraries_count_value; $i++) {
+                $all_libraries_data[$i] = $libraries_config->get("libraries_field_$i");
+                //  ksm($all_libraries_data[$i]);
+                if (!empty($all_libraries_data[$i])) {
+                    $form_lids[$i] = explode(':', $all_libraries_data[$i]);
+                    $fid_value = $form_lids[$i];
+                    $lib_names[$form_lids[$i][0]] = explode(',', $form_lids[$i][1]);
+                } else {
+                    $lib_names = '0';
+                }
+
+            }
+
+            foreach ($lib_names as $lib_key => $lib_location) {
+                if (sizeof($lib_location) > 1) {
+                    for ($j = 0; $j <= sizeof($lib_location); $j++) {
+                        if ($form_id == $lib_key) {
+                            $form['#attached']['library'][] = $lib_location[$j];
+                        }
+                    }
+                } else {
+                    if ($form_id == $lib_key) {
+                        $form['#attached']['library'][] = $lib_location;
+                    }
+                }
+               // ksm($lib_location);
+            }
+
+           // ksm($form['#attached']['library']);
+        }
+    }
+     $personaconfig = \Drupal::config('persona.admin_settings');
+     $quiz_form_id = $personaconfig->get('persona_webform_id');
+     if ($form_id == "webform_submission_quiz_node_".$quiz_form_id."_add_form") {
+         if ($form_id != "node_page_layout_builder_form") {
+             $url_email_add = isset($_GET['email']) ? $_GET['email'] : '';
+             if (!empty($url_email_add)) {
+                 $fname = \Drupal::request()->query->get('fname');
+                 $lname = \Drupal::request()->query->get('lname');
+                 $email = \Drupal::request()->query->get('email');
+                 $stype = \Drupal::request()->query->get('stype');
+                 $zipcode = \Drupal::request()->query->get('zipcode');
+                 $country = \Drupal::request()->query->get('country');
+                 $sterm = \Drupal::request()->query->get('sterm');
+                 $url_fname = isset($fname) ? $fname : '';
+                 $url_lname = isset($lname) ? $lname : '';
+                 $url_email = isset($email) ? $email : '';
+                 $url_stype = isset($stype) ? $stype : '';
+                 $url_zipcode = isset($zipcode) ? $zipcode : '';
+                 $url_country = isset($country) ? $country : '';
+                 $url_sterm = isset($sterm) ? $sterm : '';
+                 $url_variables = array('fname' => $url_fname, 'lname' => $url_lname, 'email' => $url_email, 'stype' => $url_stype, 'sterm' => $url_sterm, 'zipcode' => $url_zipcode, 'country' => $url_country);
+                 $_SESSION['quiz_email_variables'] = $url_variables;
+                 \Drupal::logger('vars')->notice('<pre><code>' . print_r($_SESSION['quiz_email_variables'], TRUE) . '</code></pre>');
+             }
+         }
+     }
+
+ }
+
+function asu_quiz_webform_submission_presave(\Drupal\webform\Entity\WebformSubmission $submission) {
+   // \Drupal::logger('webformid')->notice('<pre><code>' . print_r($submission->getWebform()->id(), TRUE) . '</code></pre>');
+    /*$rfiwebform = \Drupal\webform\Entity\Webform::load('quiz');
+    if ($rfiwebform->hasSubmissions()) {
+        $query = \Drupal::entityQuery('webform_submission')
+            ->condition('webform_id', 'asu-rfi')
+            ->condition('sid', $sid)
+            ->accessCheck(FALSE);
+        $result = $query->execute();
+        $submission_data = [];
+        foreach ($result as $item) {
+            $submission = \Drupal\webform\Entity\WebformSubmission::load($item);
+            $submission_data = $submission->getData();
+        }
+    }*/
+}
+

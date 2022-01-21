@@ -1,0 +1,25 @@
+Quizconfirmationjs:
+  version: 1.x
+  css:
+    theme:
+       css/asu_quiz.css: {}
+
+quizStyle:
+  version: VERSION
+  js:
+    js/quiz_triggerClick.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/jquery.once
+
+quizConfirmationStyle:
+  version: VERSION
+  js:
+    js/quiz_conf.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/jquery.once
+ 
+
